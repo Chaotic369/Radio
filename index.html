@@ -272,11 +272,30 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+        
+                .btn-record {
+                    width: 50px;
+                    height: 50px;
+                    font-size: 18px;
+                    color: var(--text-light);
+                }
+        
+                .btn-record.recording {
+                    color: #e53e3e;
+                    animation: pulse 1.5s infinite;
+                    box-shadow: var(--shadow-inner);
+                }
 
-        .error-msg {
+                @keyframes pulse {
+                    0% { transform: scale(0.95); }
+                    50% { transform: scale(1); }
+                    100% { transform: scale(0.95); }
+                }
+
+                .error-msg {
             color: #e53e3e;
             font-size: 12px;
             text-align: center;
@@ -289,11 +308,11 @@
     <div class="app-container">
         
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search for a radio station..." onkeypress="handleKeyPress(event)">
-            <button onclick="searchStations()">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
+                    <input type="text" id="searchInput" placeholder="Search for a radio station..." oninput="handleSearchInput()">
+                    <button onclick="searchStations()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
 
         <div class="results-container" id="resultsContainer">
             <div style="text-align: center; color: var(--text-light); padding-top: 70px; font-size: 14px;">
@@ -310,11 +329,14 @@
             <p class="error-msg" id="errorMsg">Failed to load stream. Try another station.</p>
 
             <div class="controls">
-                <div class="loader" id="loader"></div>
-                <button class="btn btn-play" id="playBtn" onclick="togglePlay()">
-                    <i class="fas fa-play" id="playIcon"></i>
-                </button>
-            </div>
+                            <button class="btn btn-record" id="recordBtn" onclick="toggleRecord()" title="Record Audio">
+                                <i class="fas fa-circle" id="recordIcon"></i>
+                            </button>
+                            <div class="loader" id="loader"></div>
+                            <button class="btn btn-play" id="playBtn" onclick="togglePlay()">
+                                <i class="fas fa-play" id="playIcon"></i>
+                            </button>
+                        </div>
 
             <div class="volume-container">
                 <i class="fas fa-volume-down"></i>
@@ -336,27 +358,71 @@
         const resultsContainer = document.getElementById('resultsContainer');
         const loader = document.getElementById('loader');
         const errorMsg = document.getElementById('errorMsg');
+                const recordBtn = document.getElementById('recordBtn');
         
-        let isPlaying = false;
-        let currentStation = null;
+                let isPlaying = false;
+                let currentStation = null;
+                let searchTimeout;
+                let mediaRecorder;
+                let recordedChunks = [];
+                let isRecording = false;
 
-        // Set initial volume
-        audio.volume = 0.5;
+                // Set initial volume
+                audio.volume = 0.5;
 
-        // API Endpoint for Radio Browser
-        const API_BASE = 'https://de1.api.radio-browser.info/json/stations/search?limit=15&hidebroken=true&name=';
+                // API Endpoint for Radio Browser
+                const API_BASE = 'https://de1.api.radio-browser.info/json/stations/search?limit=15&hidebroken=true&name=';
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                searchStations();
-            }
-        }
+                const recommendations = [
+                    { name: "Dance Wave", url_resolved: "http://dancewave.online/dance.mp3", country: "Global", tags: "dance, pop" },
+                    { name: "Lofi Hip Hop", url_resolved: "http://stream.zeno.fm/f3wvbbqmdg8uv", country: "Global", tags: "lofi, chill" },
+                    { name: "Classic Rock Florida", url_resolved: "http://198.58.98.83:8258/stream", country: "USA", tags: "classic rock" },
+                    { name: "Smooth Jazz", url_resolved: "http://uk1.internet-radio.com:8294/stream", country: "UK", tags: "jazz, smooth" }
+                ];
 
-        async function searchStations() {
-            const query = searchInput.value.trim();
-            if (!query) return;
+                window.onload = () => {
+                    showRecommendations();
+                };
 
-            resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-light); padding-top: 70px; font-size: 14px;">Searching...</div>';
+                function showRecommendations() {
+                    resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-light); padding: 10px; font-size: 14px; font-weight: bold; margin-bottom: 10px;">Recommended Stations</div>';
+                    recommendations.forEach(station => {
+                        const div = document.createElement('div');
+                        div.className = 'station-item';
+                        div.innerHTML = `
+                            <div class="station-icon"><i class="fas fa-star"></i></div>
+                            <div class="station-info">
+                                <span class="station-name">${station.name}</span>
+                                <span class="station-tags">${station.country} • ${station.tags}</span>
+                            </div>
+                        `;
+                        div.onclick = () => loadAndPlayStation(station, div);
+                        resultsContainer.appendChild(div);
+                    });
+                }
+
+                function handleSearchInput() {
+                    const query = searchInput.value.trim();
+                    clearTimeout(searchTimeout);
+            
+                    if (query === '') {
+                        showRecommendations();
+                        return;
+                    }
+            
+                    searchTimeout = setTimeout(() => {
+                        searchStations(query);
+                    }, 500); // 500ms debounce
+                }
+
+                async function searchStations(queryStr) {
+                    const query = queryStr || searchInput.value.trim();
+                    if (!query) {
+                        showRecommendations();
+                        return;
+                    }
+
+                    resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-light); padding-top: 70px; font-size: 14px;">Searching...</div>';
 
             try {
                 const response = await fetch(API_BASE + encodeURIComponent(query));
@@ -457,12 +523,75 @@
         }
 
         // Handle stream ending or errors abruptly
-        audio.addEventListener('error', () => {
-            pauseAudio();
-            stationStatus.textContent = "Stream Offline";
-            errorMsg.style.display = 'block';
-        });
+                audio.addEventListener('error', () => {
+                    pauseAudio();
+                    stationStatus.textContent = "Stream Offline";
+                    errorMsg.style.display = 'block';
+                });
 
-    </script>
+                // Recording functionality
+                function toggleRecord() {
+                    if (!currentStation || !isPlaying) {
+                        alert("Please play a station first to record!");
+                        return;
+                    }
+
+                    if (isRecording) {
+                        stopRecording();
+                    } else {
+                        startRecording();
+                    }
+                }
+
+                function startRecording() {
+                    try {
+                        // Try capturing the stream. May fail due to CORS restrictions on cross-origin audio.
+                        const stream = audio.captureStream ? audio.captureStream() : (audio.mozCaptureStream ? audio.mozCaptureStream() : null);
+                
+                        if (!stream) {
+                            alert("Recording is not supported in this browser.");
+                            return;
+                        }
+
+                        mediaRecorder = new MediaRecorder(stream);
+                
+                        mediaRecorder.ondataavailable = function(e) {
+                            if (e.data.size > 0) {
+                                recordedChunks.push(e.data);
+                            }
+                        };
+                
+                        mediaRecorder.onstop = function() {
+                            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = `${currentStation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_recording.webm`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            recordedChunks = [];
+                        };
+
+                        mediaRecorder.start();
+                        isRecording = true;
+                        recordBtn.classList.add('recording');
+                
+                    } catch (err) {
+                        console.error("Recording error:", err);
+                        alert("Cannot record this stream due to browser cross-origin (CORS) restrictions on remote audio streams.");
+                    }
+                }
+
+                function stopRecording() {
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                    isRecording = false;
+                    recordBtn.classList.remove('recording');
+                }
+
+            </script>
 </body>
 </html>
