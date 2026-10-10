@@ -1378,17 +1378,17 @@
                 const tuningNeedle = document.getElementById('tuningNeedle');
 
                 // Analogue responsiveness hooks
-                audio.addEventListener('play', () => {
-                    appContainer.classList.add('audio-active');
-                    if (tuningNeedle) {
-                        const randomPos = 20 + Math.floor(Math.random() * 60);
-                        tuningNeedle.style.left = `${randomPos}%`;
-                    }
-                });
+        audio.addEventListener('play', () => {
+            if (appContainer) appContainer.classList.add('audio-active');
+            if (tuningNeedle) {
+                const randomPos = 20 + Math.floor(Math.random() * 60);
+                tuningNeedle.style.left = `${randomPos}%`;
+            }
+        });
 
-                audio.addEventListener('pause', () => {
-                    appContainer.classList.remove('audio-active');
-                });
+        audio.addEventListener('pause', () => {
+            if (appContainer) appContainer.classList.remove('audio-active');
+        });
                 // API Endpoint for Radio Browser
                 const API_BASE = 'https://de1.api.radio-browser.info/json/stations/search?limit=15&hidebroken=true&name=';
 
@@ -1399,9 +1399,107 @@
                     { name: "Smooth Jazz", url_resolved: "http://uk1.internet-radio.com:8294/stream", country: "UK", tags: "jazz, smooth" }
                 ];
 
-                window.onload = () => {
-                    showRecommendations();
-                };
+        function setVolume(val) {
+            audio.volume = parseFloat(val);
+        }
+
+        function togglePlay() {
+            if (!currentStation) return;
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                playIcon.className = 'fas fa-play';
+                stationStatus.textContent = 'Paused';
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playIcon.className = 'fas fa-pause';
+                    stationStatus.textContent = 'Live Broadcast';
+                }).catch(() => {
+                    showError('Signal interrupted. Re-tuning required.');
+                });
+            }
+        }
+
+        function toggleRecord() {
+            if (!isPlaying && !isRecording) return;
+            if (!isRecording) {
+                try {
+                    const stream = audio.captureStream ? audio.captureStream() : audio.mozCaptureStream();
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+                    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${currentStation ? currentStation.name : 'recording'}.webm`;
+                        a.click();
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.classList.add('recording');
+                } catch (e) {
+                    console.error('Recording failed', e);
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.classList.remove('recording');
+            }
+        }
+
+        function playStation(station) {
+            currentStation = station;
+            stationTitle.textContent = station.name;
+            stationStatus.textContent = 'Connecting...';
+            if (errorMsg) errorMsg.style.display = 'none';
+            if (loader) loader.style.display = 'block';
+
+            audio.src = station.url_resolved || station.url;
+            audio.play().then(() => {
+                isPlaying = true;
+                playIcon.className = 'fas fa-pause';
+                stationStatus.textContent = 'Live Broadcast';
+                if (loader) loader.style.display = 'none';
+            }).catch(() => {
+                isPlaying = false;
+                playIcon.className = 'fas fa-play';
+                stationStatus.textContent = 'Error';
+                if (loader) loader.style.display = 'none';
+                showError('Signal interrupted. Re-tuning required.');
+            });
+        }
+
+        function showError(msg) {
+            if (errorMsg) {
+                errorMsg.textContent = msg;
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function showRecommendations() {
+            if (!resultsContainer) return;
+            resultsContainer.innerHTML = '';
+            recommendations.forEach(station => {
+                const div = document.createElement('div');
+                div.className = 'station-item';
+                div.innerHTML = `
+                    <i class="fas fa-radio station-icon"></i>
+                    <div class="station-info">
+                        <div class="station-name">${station.name}</div>
+                        <div class="station-tags">${station.tags}</div>
+                    </div>
+                `;
+                div.onclick = () => playStation(station);
+                resultsContainer.appendChild(div);
+            });
+        }
+
+        window.onload = () => {
+            showRecommendations();
+        };
     </script>
 
     <style>
