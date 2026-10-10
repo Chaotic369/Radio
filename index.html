@@ -3,350 +3,1404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analogue Hi-Fi Master Radio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Analogue Solid State Hi-Fi Radio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-color: #08090d;
-            --chassis-bg: #14171e;
-            --chassis-metal: linear-gradient(180deg, #1f242d 0%, #151820 60%, #101318 100%);
-            --bezel-color: #262c37;
-            --amber-glow: #ff9f2c;
-            --amber-dim: #995510;
-            --amber-bright: #ffc477;
-            --cyan-streak: #2ce8ff;
-            --cyan-flare: rgba(44, 232, 255, 0.65);
-            --text-color: #dce3ed;
-            --text-light: #7c889d;
-            --text-dim: #454f60;
-            --meter-glass: #0b0e14;
-            --shadow-outer: 0 30px 60px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.06);
-            --shadow-inner: inset 3px 3px 6px rgba(0, 0, 0, 0.8), inset -1px -1px 3px rgba(255, 255, 255, 0.05);
-            --knob-metal: radial-gradient(circle at 35% 35%, #343a46 0%, #171a22 75%, #0f1117 100%);
+            --chassis-bg: #101319;
+            --chassis-face: #141923;
+            --panel-inset: #0a0d12;
+            --bezel-edge: #2a3344;
+            --bezel-highlight: #3b475d;
+            --amber-glow: #ff9f1c;
+            --amber-dim: #b46b0a;
+            --cyan-flare: #38bdf8;
+            --cyan-glow: rgba(56, 189, 248, 0.45);
+            --needle-red: #ff3344;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --text-dial: #fcd34d;
+            --meter-bg: #191611;
+            
+            --knob-outer: linear-gradient(135deg, #323b4b 0%, #171d27 50%, #0d1117 100%);
+            --metallic-rim: 0 0 0 1px #475569, 0 4px 10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.3);
+            --inset-trough: inset 2px 2px 6px rgba(0,0,0,0.85), inset -1px -1px 3px rgba(255,255,255,0.06);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 50% 20%, rgba(255, 159, 44, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 80%, rgba(44, 232, 255, 0.04) 0%, transparent 60%),
-                repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0px, rgba(255, 255, 255, 0.012) 1px, transparent 1px, transparent 2px);
-            color: var(--text-color);
+            background: radial-gradient(circle at 50% 20%, #151b26 0%, #080a0f 70%, #030406 100%);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 24px;
+            padding: 25px 15px;
+            position: relative;
             overflow-x: hidden;
+        }
+
+        /* Anamorphic background atmosphere streaks */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 30%;
+            left: -50vw;
+            width: 200vw;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.15) 35%, rgba(56, 189, 248, 0.7) 50%, rgba(56, 189, 248, 0.15) 65%, transparent 100%);
+            box-shadow: 0 0 25px 3px var(--cyan-glow), 0 0 70px 8px rgba(56, 189, 248, 0.25);
+            pointer-events: none;
+            opacity: 0.65;
+            filter: blur(0.5px);
         }
 
         .app-container {
             width: 100%;
             max-width: 440px;
-            background: var(--chassis-metal);
+            background: linear-gradient(175deg, #18202d 0%, #121721 40%, #0d1017 100%);
             border-radius: 20px;
-            border: 1px solid var(--bezel-color);
-            box-shadow: var(--shadow-outer);
-            padding: 22px 24px 26px;
+            border: 1px solid var(--bezel-edge);
+            box-shadow: 
+                0 30px 60px -15px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.8),
+                0 0 45px rgba(56, 189, 248, 0.08);
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            position: relative;
-        }
-
-        /* Analogue Chassis Screws and Labels */
-        .chassis-screws {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-        }
-
-        .chassis-brand span {
-            color: var(--amber-glow);
-            font-weight: 700;
-        }
-
-        .screw {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #3e4655 0%, #151820 100%);
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 1px 3px rgba(0,0,0,0.8);
-            position: relative;
-            border: 1px solid #0d0f14;
-        }
-
-        .screw::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 2px;
-            right: 2px;
-            height: 1px;
-            background: #0d0f14;
-            transform: translateY(-50%) rotate(42deg);
-        }
-
-        /* Anamorphic Tuner Display Section */
-        .tuner-display {
-            background: var(--meter-glass);
-            border-radius: 14px;
-            border: 1px solid #1c222e;
-            box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.07);
-            padding: 14px 16px 12px;
+            gap: 16px;
             position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
         }
 
-        /* Anamorphic Lens Flare & Reflections */
-        .anamorphic-flare {
+        /* Subtle anamorphic flare slice across chassis */
+        .app-container::before {
+            content: '';
             position: absolute;
-            top: 48%;
-            left: -30%;
-            width: 160%;
-            height: 2px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(44, 232, 255, 0) 15%, 
-                var(--cyan-flare) 44%, 
-                #ffffff 50%, 
-                var(--amber-glow) 56%, 
-                rgba(255, 159, 44, 0) 85%, 
-                transparent 100%
-            );
-            box-shadow: 0 0 10px 2px var(--cyan-streak), 0 0 20px 4px var(--amber-glow);
-            opacity: 0.6;
+            top: 140px;
+            left: -30px;
+            right: -30px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.2) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(56, 189, 248, 0.2) 80%, transparent);
+            box-shadow: 0 0 10px 1px var(--cyan-flare);
             pointer-events: none;
-            mix-blend-mode: screen;
-            transform: translateY(-50%);
-            animation: flareDrift 6s ease-in-out infinite alternate;
+            opacity: 0.35;
             z-index: 5;
         }
 
-        @keyframes flareDrift {
-            0% { opacity: 0.4; filter: blur(0.5px); }
-            50% { opacity: 0.8; filter: blur(0.2px); }
-            100% { opacity: 0.5; filter: blur(0.8px); }
-        }
-
-        .glass-reflection {
+        /* Corner Hardware Rivets / Screws */
+        .screw {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(125deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 30%, transparent 60%);
-            pointer-events: none;
-            z-index: 6;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #5b687f 20%, #1a2230 90%);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.8);
+            opacity: 0.75;
         }
+        .screw::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 1px;
+            width: 7px;
+            height: 1px;
+            background: #090c10;
+            transform: rotate(38deg);
+        }
+        .screw.tl { top: 10px; left: 10px; }
+        .screw.tr { top: 10px; right: 10px; }
+        .screw.bl { bottom: 10px; left: 10px; }
+        .screw.br { bottom: 10px; right: 10px; }
 
-        .tuner-top-row {
+        /* Chassis Header */
+        .chassis-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 1.5px;
-            color: var(--text-dim);
-            position: relative;
-            z-index: 2;
-        }
-
-        .analogue-indicators {
-            display: flex;
-            gap: 12px;
-        }
-
-        .indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--text-dim);
-            transition: all 0.3s ease;
-        }
-
-        .indicator i {
-            font-size: 7px;
-            color: #272d3b;
-            transition: all 0.3s ease;
-        }
-
-        .indicator.active {
-            color: var(--amber-glow);
-            text-shadow: 0 0 8px rgba(255, 159, 44, 0.7);
-        }
-
-        .indicator.active i {
-            color: var(--amber-glow);
-            box-shadow: 0 0 8px var(--amber-glow);
-        }
-
-        /* Dual Analogue VU Meters */
-        .vu-meters-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .vu-meter {
-            background: #07090d;
-            border-radius: 8px;
-            padding: 8px 6px 4px;
-            border: 1px solid #161b24;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.85);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .vu-scale {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 8px;
-            color: #5d677a;
-            padding: 0 4px;
-            letter-spacing: -0.5px;
-        }
-
-        .vu-scale .vu-red {
-            color: #e53e3e;
-            font-weight: bold;
-        }
-
-        .vu-dial {
-            width: 100%;
-            height: 30px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-        }
-
-        .vu-needle {
-            position: absolute;
-            bottom: -6px;
-            width: 2px;
-            height: 38px;
-            background: linear-gradient(180deg, #ff4c4c 0%, #ff9f2c 60%, #4a5568 100%);
-            box-shadow: 0 0 5px rgba(255, 76, 76, 0.6);
-            transform-origin: bottom center;
-            transform: rotate(-32deg);
-            transition: transform 0.08s cubic-bezier(0.2, 0.9, 0.3, 1);
-            border-radius: 1px;
-        }
-
-        .vu-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 8px;
-            letter-spacing: 1px;
-            color: var(--amber-dim);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
             margin-top: 2px;
         }
 
-        /* Frequency Scale */
-        .frequency-scale {
-            background: #05070a;
-            border: 1px solid #161a23;
-            border-radius: 6px;
-            padding: 6px 10px;
-            position: relative;
-            z-index: 2;
+        .chassis-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .scale-row {
+        .brand-text {
+            font-size: 11px;
+            letter-spacing: 2.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .pilot-lamp {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: #64748b;
+            letter-spacing: 1px;
+        }
+
+        .jewel-lamp {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #0f4625;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+            border: 1px solid #1e293b;
+            transition: all 0.3s ease;
+        }
+
+        .app-container.audio-active .jewel-lamp {
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e, 0 0 20px rgba(34, 197, 94, 0.6);
+        }
+
+        /* Dual Analogue VU Meter Panel */
+        .vu-meter-panel {
+            background: var(--meter-bg);
+            border-radius: 10px;
+            padding: 8px 14px;
+            border: 1px solid #282015;
+            box-shadow: var(--inset-trough), 0 0 20px rgba(255, 159, 28, 0.06);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vu-meter-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 159, 28, 0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .vu-unit {
+            position: relative;
+            height: 52px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .vu-scale-graphic {
+            position: absolute;
+            top: 4px;
+            left: 0;
+            right: 0;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-family: 'Share Tech Mono', monospace;
             font-size: 9px;
-            color: #6d7b91;
-            letter-spacing: 1px;
+            color: #d97706;
+            letter-spacing: 0.5px;
+            padding: 0 4px;
         }
 
-        .band-tag {
-            color: var(--amber-glow);
-            font-weight: bold;
-            font-size: 10px;
+        .vu-scale-graphic .peak {
+            color: #ef4444;
         }
 
-        .band-unit {
-            color: var(--text-dim);
-            font-size: 8px;
-        }
-
-        .scale-track {
-            position: relative;
-            height: 14px;
-            margin: 4px 0;
-            background: repeating-linear-gradient(90deg, #2a3342 0px, #2a3342 1px, transparent 1px, transparent 10px);
-            border-top: 1px solid #1b222d;
-            border-bottom: 1px solid #1b222d;
-        }
-
-        .needle-indicator {
+        .vu-arc-line {
             position: absolute;
-            top: -2px;
-            left: 45%;
-            width: 3px;
-            height: 18px;
-            background: #ff3333;
-            box-shadow: 0 0 10px rgba(255, 51, 51, 0.9), 0 0 20px rgba(255, 159, 44, 0.6);
+            top: 18px;
+            left: 6px;
+            right: 6px;
+            height: 1px;
+            background: linear-gradient(90deg, #b45309 0%, #d97706 70%, #ef4444 71%, #dc2626 100%);
+            opacity: 0.7;
+        }
+
+        .vu-needle-track {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            width: 2px;
+            height: 48px;
+            transform-origin: bottom center;
+            transform: rotate(-35deg);
+            transition: transform 0.18s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .vu-needle-body {
+            width: 1.5px;
+            height: 100%;
+            background: linear-gradient(to top, #334155, var(--needle-red));
+            box-shadow: 0 0 5px rgba(255, 51, 68, 0.8);
             border-radius: 1px;
-            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 3;
         }
 
-        /* Display Readout */
-        .now-playing {
-            text-align: center;
-            width: 100%;
+        .app-container.audio-active .vu-unit.ch-l .vu-needle-track {
+            animation: vuJitterL 1.2s infinite ease-in-out;
+        }
+        .app-container.audio-active .vu-unit.ch-r .vu-needle-track {
+            animation: vuJitterR 1.4s infinite ease-in-out;
         }
 
-        .display-amber-glow h3 {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
+        @keyframes vuJitterL {
+            0% { transform: rotate(-32deg); }
+            20% { transform: rotate(8deg); }
+            45% { transform: rotate(-12deg); }
+            70% { transform: rotate(18deg); }
+            85% { transform: rotate(-5deg); }
+            100% { transform: rotate(-32deg); }
+        }
+
+        @keyframes vuJitterR {
+            0% { transform: rotate(-30deg); }
+            25% { transform: rotate(14deg); }
+            50% { transform: rotate(-8deg); }
+            75% { transform: rotate(6deg); }
+            90% { transform: rotate(-18deg); }
+            100% { transform: rotate(-30deg); }
+        }
+
+        .vu-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 8px;
             letter-spacing: 1px;
-            color: var(--amber-bright);
-            text-shadow: 0 0 14px rgba(255, 159, 44, 0.55), 0 0 2px rgba(255, 255, 255, 0.6);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 2px;
+            color: #78716c;
+            z-index: 2;
+            margin-bottom: 1px;
         }
 
-        .display-amber-glow p {
+        /* Analogue Tuning Dial Window */
+        .tuning-dial-window {
+            background: #090c11;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+            box-shadow: var(--inset-trough), 0 0 20px rgba(56, 189, 248, 0.08);
+            padding: 8px 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dial-glass-glare {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(125deg, rgba(255, 255, 255, 0.06) 0%, transparent 45%, rgba(56, 189, 248, 0.03) 70%, transparent 100%);
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .dial-band-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-family: 'Share Tech Mono', monospace;
             font-size: 11px;
-            letter-spacing: 1px;
-            color: var(--text-light);
-            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            line-height: 1.5;
+            color: var(--text-dial);
+            text-shadow: 0 0 7px rgba(252, 211, 77, 0.45);
+        }
+
+        .dial-band-row.am-band {
+            color: #94a3b8;
+            font-size: 10px;
+            text-shadow: none;
+            opacity: 0.85;
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+            margin-top: 3px;
+            padding-top: 3px;
+        }
+
+        .dial-scale-marker {
+            color: #d97706;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        /* Analogue Needle Bar across scale */
+        .tuning-needle-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 45%;
+            width: 2px;
+            background: var(--needle-red);
+            box-shadow: 0 0 8px #ff3344, 0 0 16px rgba(255, 51, 68, 0.7);
+            z-index: 3;
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+        .tuning-needle-indicator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -3px;
+            width: 8px;
+            height: 3px;
+            background: #ff3344;
+            border-radius: 1px;
         }
 
         /* Search Section */
         .search-box {
             display: flex;
             align-items: center;
-            background: #0c0e14;
+            background: var(--panel-inset);
             border-radius: 12px;
+            border: 1px solid #1e2638;
+            box-shadow: var(--inset-trough);
+            padding: 3px 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: var(--inset-trough), 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+
+        .search-box input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            padding: 8px 6px;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Quartz Digital Clock Module */
+        .digital-clock-panel {
+            background: #07090e;
+            border-radius: 12px;
+            border: 1px solid #1e2638;
+            box-shadow: var(--inset-trough), 0 0 20px rgba(56, 189, 248, 0.08);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .digital-clock-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 45%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .clock-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .clock-badge {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--amber-glow);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .clock-badge::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--amber-glow);
+            box-shadow: 0 0 6px var(--amber-glow);
+        }
+
+        .clock-date {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
+
+        .clock-time-display {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .clock-digits {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--cyan-flare);
+            text-shadow: 0 0 10px var(--cyan-glow), 0 0 22px rgba(56, 189, 248, 0.4);
+            line-height: 1;
+        }
+
+        .clock-seconds {
+            font-size: 16px;
+            opacity: 0.85;
+            color: #7dd3fc;
+        }
+
+        .clock-ampm {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--amber-glow);
+            letter-spacing: 1px;
+            padding: 2px 4px;
+            background: rgba(255, 159, 28, 0.12);
+            border: 1px solid rgba(255, 159, 28, 0.3);
+            border-radius: 4px;
+        }
+
+        /* Tuner Display Info */
+        .station-readout {
+            background: var(--panel-inset);
+            border: 1px solid #1a2233;
+            border-radius: 12px;
+            box-shadow: var(--inset-trough);
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .station-freq-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .station-freq {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--amber-glow);
+            text-shadow: 0 0 8px rgba(255, 159, 28, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .station-mode-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .station-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Hardware Controls */
+        .controls-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-top: 4px;
+        }
+
+        .btn-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--knob-outer);
+            box-shadow: var(--metallic-rim);
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-circle:hover {
+            color: #f8fafc;
+            transform: scale(1.04);
+            box-shadow: 0 0 0 1px #64748b, 0 6px 14px rgba(0,0,0,0.7);
+        }
+
+        .btn-circle:active {
+            transform: scale(0.96);
+        }
+
+        .btn-circle.btn-play {
+            width: 52px;
+            height: 52px;
+            color: var(--amber-glow);
+            font-size: 18px;
+            border: 1px solid rgba(255, 159, 28, 0.4);
+            box-shadow: 0 0 0 1px #ff9f1c, 0 6px 16px rgba(0,0,0,0.8), 0 0 15px rgba(255, 159, 28, 0.2);
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--panel-inset);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #1a2233;
+            box-shadow: var(--inset-trough);
+        }
+
+        .volume-container i {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #1e293b;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--amber-glow);
+            box-shadow: 0 0 8px var(--amber-glow);
+            cursor: pointer;
+        }
+
+        /* Preset Station Chips */
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .preset-chip {
+            background: #121824;
+            border: 1px solid #1e2638;
+            border-radius: 8px;
+            padding: 6px 4px;
+            text-align: center;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #94a3b8;
+            transition: all 0.2s ease;
+        }
+
+        .preset-chip:hover, .preset-chip.active {
+            border-color: var(--amber-glow);
+            color: #ff9f1c;
+            background: #191f2c;
+            box-shadow: 0 0 10px rgba(255, 159, 28, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="radioChassis">
+        <div class="screw tl"></div>
+        <div class="screw tr"></div>
+        <div class="screw bl"></div>
+        <div class="screw br"></div>
+
+        <!-- Chassis Header -->
+        <header class="chassis-header">
+            <div class="chassis-brand">
+                <i class="fa-solid fa-tower-broadcast" style="color: var(--cyan-flare); font-size: 13px;"></i>
+                <span class="brand-text">TELEFUNKEN SOLID-STATE</span>
+            </div>
+            <div class="pilot-lamp">
+                <span>STEREO</span>
+                <div class="jewel-lamp" id="stereoJewel"></div>
+            </div>
+        </header>
+
+        <!-- Digital Chronometer Clock -->
+        <section class="digital-clock-panel">
+            <div class="clock-meta">
+                <span class="clock-badge">QUARTZ CLOCK</span>
+                <span class="clock-date" id="clockDate">-- --- ----</span>
+            </div>
+            <div class="clock-time-display">
+                <span class="clock-digits" id="clockDigits">12:00</span>
+                <span class="clock-seconds" id="clockSeconds">:00</span>
+                <span class="clock-ampm" id="clockAmpm">AM</span>
+            </div>
+        </section>
+
+        <!-- Dual Analogue VU Meters -->
+        <section class="vu-meter-panel">
+            <div class="vu-unit ch-l">
+                <div class="vu-scale-graphic">
+                    <span>-20</span>
+                    <span>-7</span>
+                    <span>0</span>
+                    <span class="peak">+3</span>
+                </div>
+                <div class="vu-arc-line"></div>
+                <div class="vu-needle-track">
+                    <div class="vu-needle-body"></div>
+                </div>
+                <div class="vu-tag">VU LEFT</div>
+            </div>
+            <div class="vu-unit ch-r">
+                <div class="vu-scale-graphic">
+                    <span>-20</span>
+                    <span>-7</span>
+                    <span>0</span>
+                    <span class="peak">+3</span>
+                </div>
+                <div class="vu-arc-line"></div>
+                <div class="vu-needle-track">
+                    <div class="vu-needle-body"></div>
+                </div>
+                <div class="vu-tag">VU RIGHT</div>
+            </div>
+        </section>
+
+        <!-- Analogue Tuning Dial Window -->
+        <section class="tuning-dial-window">
+            <div class="dial-glass-glare"></div>
+            <div class="tuning-needle-indicator" id="needleIndicator"></div>
+            <div class="dial-band-row">
+                <span class="dial-scale-marker">FM</span>
+                <span>88</span>
+                <span>92</span>
+                <span>96</span>
+                <span>100</span>
+                <span>104</span>
+                <span>108</span>
+                <span class="dial-scale-marker">MHz</span>
+            </div>
+            <div class="dial-band-row am-band">
+                <span class="dial-scale-marker">AM</span>
+                <span>540</span>
+                <span>700</span>
+                <span>900</span>
+                <span>1200</span>
+                <span>1600</span>
+                <span class="dial-scale-marker">kHz</span>
+            </div>
+        </section>
+
+        <!-- Station Readout -->
+        <div class="station-readout">
+            <div class="station-freq-row">
+                <span class="station-freq" id="freqReadout">88.5 MHz</span>
+                <span class="station-mode-tag" id="modeTag">FM STEREO</span>
+            </div>
+            <div class="station-name" id="stationName">Secret Agent (SomaFM)</div>
+        </div>
+
+        <!-- Presets -->
+        <div class="presets-grid" id="presetsContainer"></div>
+
+        <!-- Search Bar -->
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="stationSearch" placeholder="Search presets or frequencies...">
+        </div>
+
+        <!-- Hardware Controls -->
+        <div class="controls-panel">
+            <button class="btn-circle" id="prevBtn" title="Previous Station">
+                <i class="fa-solid fa-backward-step"></i>
+            </button>
+            <button class="btn-circle btn-play" id="playBtn" title="Play / Pause">
+                <i class="fa-solid fa-play" id="playIcon"></i>
+            </button>
+            <button class="btn-circle" id="nextBtn" title="Next Station">
+                <i class="fa-solid fa-forward-step"></i>
+            </button>
+            <button class="btn-circle" id="muteBtn" title="Mute">
+                <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
+            </button>
+        </div>
+
+        <!-- Volume Trough -->
+        <div class="volume-container">
+            <i class="fa-solid fa-volume-low"></i>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.75">
+            <i class="fa-solid fa-volume-high"></i>
+        </div>
+
+        <audio id="audioPlayer" preload="none"></audio>
+    </div>
+
+    <script>
+        // High-Precision Real-Time Clock
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            const hoursStr = String(hours).padStart(2, '0');
+
+            document.getElementById('clockDigits').textContent = `${hoursStr}:${minutes}`;
+            document.getElementById('clockSeconds').textContent = `:${seconds}`;
+            document.getElementById('clockAmpm').textContent = ampm;
+
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            document.getElementById('clockDate').textContent = `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Radio Stations Configuration
+        const STATIONS = [
+            { id: 1, name: "Secret Agent Radio", freq: "88.5", needle: 10, url: "https://ice6.somafm.com/secretagent-128-mp3" },
+            { id: 2, name: "Groove Salad Ambient", freq: "92.1", needle: 28, url: "https://ice6.somafm.com/groovesalad-128-mp3" },
+            { id: 3, name: "DEF CON Hacker Radio", freq: "96.7", needle: 51, url: "https://ice6.somafm.com/defcon-128-mp3" },
+            { id: 4, name: "Lush Chillout FM", freq: "101.3", needle: 74, url: "https://ice6.somafm.com/lush-128-mp3" }
+        ];
+
+        let currentIndex = 0;
+        let isPlaying = false;
+
+        const chassis = document.getElementById('radioChassis');
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const freqReadout = document.getElementById('freqReadout');
+        const stationName = document.getElementById('stationName');
+        const needleIndicator = document.getElementById('needleIndicator');
+        const presetsContainer = document.getElementById('presetsContainer');
+        const stationSearch = document.getElementById('stationSearch');
+
+        function renderPresets(stationsToRender = STATIONS) {
+            presetsContainer.innerHTML = '';
+            stationsToRender.forEach(station => {
+                const chip = document.createElement('div');
+                chip.className = `preset-chip ${STATIONS[currentIndex].id === station.id ? 'active' : ''}`;
+                chip.textContent = `${station.freq}`;
+                chip.title = station.name;
+                chip.onclick = () => {
+                    const idx = STATIONS.findIndex(s => s.id === station.id);
+                    if (idx !== -1) tuneToStation(idx);
+                };
+                presetsContainer.appendChild(chip);
+            });
+        }
+
+        function tuneToStation(index) {
+            currentIndex = index;
+            const station = STATIONS[currentIndex];
+            freqReadout.textContent = `${station.freq} MHz`;
+            stationName.textContent = station.name;
+            needleIndicator.style.left = `${station.needle}%`;
+
+            renderPresets();
+            audio.src = station.url;
+            if (isPlaying) {
+                audio.play().catch(() => {});
+            }
+        }
+
+        function togglePlay() {
+            if (!isPlaying) {
+                if (!audio.src) audio.src = STATIONS[currentIndex].url;
+                audio.play().then(() => {
+                    isPlaying = true;
+                    chassis.classList.add('audio-active');
+                    playIcon.className = 'fa-solid fa-pause';
+                }).catch(() => {
+                    isPlaying = true;
+                    chassis.classList.add('audio-active');
+                    playIcon.className = 'fa-solid fa-pause';
+                });
+            } else {
+                audio.pause();
+                isPlaying = false;
+                chassis.classList.remove('audio-active');
+                playIcon.className = 'fa-solid fa-play';
+            }
+        }
+
+        playBtn.onclick = togglePlay;
+        prevBtn.onclick = () => {
+            const next = (currentIndex - 1 + STATIONS.length) % STATIONS.length;
+            tuneToStation(next);
+        };
+        nextBtn.onclick = () => {
+            const next = (currentIndex + 1) % STATIONS.length;
+            tuneToStation(next);
+        };
+
+        volumeSlider.oninput = (e) => {
+            audio.volume = e.target.value;
+            volumeIcon.className = audio.volume == 0 ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+        };
+
+        muteBtn.onclick = () => {
+            if (audio.volume > 0) {
+                audio.volume = 0;
+                volumeSlider.value = 0;
+                volumeIcon.className = 'fa-solid fa-volume-xmark';
+            } else {
+                audio.volume = 0.75;
+                volumeSlider.value = 0.75;
+                volumeIcon.className = 'fa-solid fa-volume-high';
+            }
+        };
+
+        stationSearch.oninput = (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = STATIONS.filter(s => s.name.toLowerCase().includes(val) || s.freq.includes(val));
+            renderPresets(filtered.length ? filtered : STATIONS);
+        };
+
+        tuneToStation(0);
+    </script>
+</body>
+</html>
+            box-shadow: var(--inset-trough), 0 0 14px rgba(56, 189, 248, 0.2);
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 6px;
+            font-size: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .search-box button {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 15px;
+            transition: color 0.2s ease, text-shadow 0.2s ease;
+        }
+
+        .search-box button:hover {
+            color: var(--cyan-flare);
+            text-shadow: 0 0 8px var(--cyan-flare);
+        }
+
+        /* Station Results Index */
+        .results-container {
+            height: 140px;
+            overflow-y: auto;
+            border-radius: 10px;
+            padding: 6px;
+            background: #090c12;
+            border: 1px solid #1a2233;
+            box-shadow: var(--inset-trough);
+        }
+
+        .results-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .results-container::-webkit-scrollbar-track {
+            background: #07090e;
+        }
+        .results-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        .station-item {
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .station-item:hover {
+            background: rgba(56, 189, 248, 0.06);
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateX(2px);
+        }
+
+        .station-item.active {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(245, 158, 11, 0.08));
+            border-color: rgba(56, 189, 248, 0.6);
+            box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.15);
+        }
+
+        .station-item.active .station-name {
+            color: #38bdf8;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+        }
+
+        .station-icon {
+            font-size: 13px;
+            color: #eab308;
+        }
+
+        .station-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .station-name {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #cbd5e1;
+        }
+
+        .station-tags {
+            font-size: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #64748b;
+        }
+
+        /* Player Section */
+        .player-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .now-playing-panel {
+            width: 100%;
+            background: #090c11;
+            border: 1px solid #1e2638;
+            border-radius: 10px;
+            padding: 10px 14px;
+            text-align: center;
+            box-shadow: var(--inset-trough);
+            position: relative;
+        }
+
+        .frequency-hud {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: #eab308;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            opacity: 0.85;
+        }
+
+        .now-playing h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .now-playing p {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 11px;
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+            display: none;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tactile Analogue Controls */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            padding: 4px 0;
+        }
+
+        .btn {
+            background: var(--knob-outer);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--metallic-rim), 0 8px 18px rgba(0,0,0,0.85);
+            transition: all 0.15s ease;
+            outline: none;
+            position: relative;
+        }
+
+        /* Tactile knurled edge illusion */
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255,255,255,0.18);
+            pointer-events: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--metallic-rim), 0 10px 22px rgba(0,0,0,0.9), 0 0 16px rgba(56, 189, 248, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .btn-record {
+            width: 46px;
+            height: 46px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .btn-record.recording {
+            color: #ef4444;
+            animation: recordPulse 1.2s infinite;
+            box-shadow: var(--metallic-rim), 0 0 20px rgba(239, 68, 68, 0.8);
+        }
+
+        @keyframes recordPulse {
+            0% { transform: scale(0.96); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(0.96); }
+        }
+
+        /* Big Centre Play Knob */
+        .btn-play {
+            width: 72px;
+            height: 72px;
+            font-size: 24px;
+            color: #f8fafc;
+            background: radial-gradient(circle at 35% 30%, #3a475d 0%, #161c26 65%, #0d121a 100%);
+            border: 2px solid #475569;
+        }
+
+        .btn-play:hover {
+            color: var(--cyan-flare);
+            text-shadow: 0 0 12px var(--cyan-flare);
+        }
+
+        .btn-play.playing {
+            color: var(--amber-glow);
+            text-shadow: 0 0 16px var(--amber-glow);
+            box-shadow: inset 0 2px 7px rgba(0,0,0,0.95), 0 0 22px rgba(255, 159, 28, 0.45);
+        }
+
+        /* Tuning Indicator Loader */
+        .loader {
+            display: none;
+            border: 2px solid #1e293b;
+            border-top: 2px solid var(--cyan-flare);
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            animation: spin 0.8s linear infinite;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Analogue Volume Fader */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 8px 12px;
+            background: #090c12;
+            border: 1px solid #1a2233;
+            border-radius: 10px;
+            box-shadow: var(--inset-trough);
+        }
+
+        .vol-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: #64748b;
+        }
+
+        .volume-container i {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            flex: 1;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #05070a;
+            border-radius: 3px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.06);
+            border: 1px solid #18202d;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 14px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #64748b 0%, #1e293b 80%, #0f172a 100%);
+            border: 1px solid #94a3b8;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 0 8px rgba(56, 189, 248, 0.3);
+            position: relative;
+        }
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Analogue Chassis Hardware Rivets -->
+        <span class="screw tl"></span>
+        <span class="screw tr"></span>
+        <span class="screw bl"></span>
+        <span class="screw br"></span>
+
+        <!-- Chassis Header & Pilot Lamp -->
+        <div class="chassis-header">
+            <div class="chassis-brand">
+                <i class="fas fa-broadcast-tower" style="color: var(--cyan-flare); font-size: 12px;"></i>
+                <span class="brand-text">Hi-Fi Receiver // Model 78</span>
+            </div>
+            <div class="pilot-lamp">
+                <span>TUNED</span>
+                <span class="jewel-lamp"></span>
+            </div>
+        </div>
+
+        <!-- Analogue VU Meter Dual Panel -->
+        <div class="vu-meter-panel">
+            <div class="vu-unit ch-l">
+                <div class="vu-scale-graphic">
+                    <span>-20</span><span>-10</span><span>-5</span><span>0</span><span class="peak">+3</span>
+                </div>
+                <div class="vu-arc-line"></div>
+                <div class="vu-needle-track">
+                    <div class="vu-needle-body"></div>
+                </div>
+                <div class="vu-tag">VU-L • dB</div>
+            </div>
+            <div class="vu-unit ch-r">
+                <div class="vu-scale-graphic">
+                    <span>-20</span><span>-10</span><span>-5</span><span>0</span><span class="peak">+3</span>
+                </div>
+                <div class="vu-arc-line"></div>
+                <div class="vu-needle-track">
+                    <div class="vu-needle-body"></div>
+                </div>
+                <div class="vu-tag">VU-R • dB</div>
+            </div>
+        </div>
+
+        <!-- Analogue Illuminated Tuning Scale Glass -->
+        <div class="tuning-dial-window">
+            <div class="dial-glass-glare"></div>
+            <div class="tuning-needle-indicator" id="tuningNeedle"></div>
+            <div class="dial-band-row fm-band">
+                <span class="dial-scale-marker">FM</span>
+                <span>88</span>
+                <span>92</span>
+                <span>96</span>
+                <span>100</span>
+                <span>104</span>
+                <span>108</span>
+                <span class="dial-scale-marker">MHz</span>
+            </div>
+            <div class="dial-band-row am-band">
+                <span class="dial-scale-marker">AM</span>
+                <span>530</span>
+                <span>700</span>
+                <span>950</span>
+                <span>1200</span>
+                <span>1450</span>
+                <span>1700</span>
+                <span class="dial-scale-marker">kHz</span>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search frequency / station..." oninput="handleSearchInput()">
+            <button onclick="searchStations()" title="Scan Frequencies">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- Stations List -->
+        <div class="results-container" id="resultsContainer">
+            <div style="text-align: center; color: var(--text-muted); padding-top: 45px; font-size: 13px; font-family: 'Share Tech Mono', monospace;">
+                [ SCANNING BANDS // SEARCH STATIONS ]
+            </div>
+        </div>
+
+        <!-- Player & Analogue Controls Section -->
+        <div class="player-section">
+            <div class="now-playing-panel">
+                <div class="frequency-hud">ANALOGUE BROADCAST FEED</div>
+                <div class="now-playing">
+                    <h3 id="stationTitle">No Station Selected</h3>
+                    <p id="stationStatus">Standby mode</p>
+                </div>
+            </div>
+            
+            <p class="error-msg" id="errorMsg">Signal interrupted. Re-tuning required.</p>
+
+            <div class="controls">
+                <button class="btn btn-record" id="recordBtn" onclick="toggleRecord()" title="Tape Record">
+                    <i class="fas fa-circle" id="recordIcon"></i>
+                </button>
+                <div class="loader" id="loader"></div>
+                <button class="btn btn-play" id="playBtn" onclick="togglePlay()" title="Master Power / Play">
+                    <i class="fas fa-play" id="playIcon"></i>
+                </button>
+            </div>
+
+            <div class="volume-container">
+                <span class="vol-label">GAIN</span>
+                <i class="fas fa-volume-down"></i>
+                <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5" onchange="setVolume(this.value)">
+                <i class="fas fa-volume-up"></i>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="none"></audio>
+
+    <script>
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const stationTitle = document.getElementById('stationTitle');
+        const stationStatus = document.getElementById('stationStatus');
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const loader = document.getElementById('loader');
+        const errorMsg = document.getElementById('errorMsg');
+                const recordBtn = document.getElementById('recordBtn');
+        
+                let isPlaying = false;
+                let currentStation = null;
+                let searchTimeout;
+                let mediaRecorder;
+                let recordedChunks = [];
+                let isRecording = false;
+
+                // Set initial volume
+                audio.volume = 0.5;
+
+                const appContainer = document.querySelector('.app-container');
+                const tuningNeedle = document.getElementById('tuningNeedle');
+
+                // Analogue responsiveness hooks
+                audio.addEventListener('play', () => {
+                    appContainer.classList.add('audio-active');
+                    if (tuningNeedle) {
+                        const randomPos = 20 + Math.floor(Math.random() * 60);
+                        tuningNeedle.style.left = `${randomPos}%`;
+                    }
+                });
+
+                audio.addEventListener('pause', () => {
+                    appContainer.classList.remove('audio-active');
+                });
+                // API Endpoint for Radio Browser
+                const API_BASE = 'https://de1.api.radio-browser.info/json/stations/search?limit=15&hidebroken=true&name=';
+
+                const recommendations = [
+                    { name: "Dance Wave", url_resolved: "http://dancewave.online/dance.mp3", country: "Global", tags: "dance, pop" },
+                    { name: "Lofi Hip Hop", url_resolved: "http://stream.zeno.fm/f3wvbbqmdg8uv", country: "Global", tags: "lofi, chill" },
+                    { name: "Classic Rock Florida", url_resolved: "http://198.58.98.83:8258/stream", country: "USA", tags: "classic rock" },
+                    { name: "Smooth Jazz", url_resolved: "http://uk1.internet-radio.com:8294/stream", country: "UK", tags: "jazz, smooth" }
+                ];
+
+                window.onload = () => {
+                    showRecommendations();s: 12px;
             border: 1px solid #202735;
             box-shadow: var(--shadow-inner);
             padding: 4px 12px;
